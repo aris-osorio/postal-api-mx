@@ -1,36 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-
-class ActiveManager(models.Manager):
-    """Manager dont show deleted data."""
-    def get_queryset(self):
-        return super().get_queryset().filter(deleted_at__isnull=True)
-
-
-class BaseModel(models.Model):
-    """Abstract base model for auditing and soft deletion."""
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_('Fecha de creación')
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        verbose_name=_('Fecha de actualización')
-    )
-    deleted_at = models.DateTimeField(
-        null=True, 
-        blank=True,
-        verbose_name=_('Fecha de eliminación')
-    )
-
-    objects = ActiveManager()
-    all_objects = models.Manager()
-
-    class Meta:
-        abstract = True
-        verbose_name = _('Modelo Base')
-        verbose_name_plural = _('Modelos Base')
+from core.models import BaseModel
 
 
 class CatEstado(BaseModel):
