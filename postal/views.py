@@ -1,5 +1,5 @@
 from django.utils import timezone
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from .models import (
     CatEstado,
     CatMunicipio,
@@ -33,12 +33,14 @@ class SoftDeleteModelViewSet(viewsets.ModelViewSet):
 class CatEstadoViewSet(SoftDeleteModelViewSet):
     queryset = CatEstado.objects.all().order_by('id')
     serializer_class = CatEstadoSerializer
+    filter_backends = [filters.SearchFilter]
     search_fields = ['nombre', 'clave']
 
 
 class CatMunicipioViewSet(SoftDeleteModelViewSet):
     queryset = CatMunicipio.objects.all().order_by('id')
     serializer_class = CatMunicipioSerializer
+    filter_backends = [filters.SearchFilter]
     search_fields = ['nombre', 'clave']
     filterset_fields = ['estado_id']
 
@@ -46,6 +48,7 @@ class CatMunicipioViewSet(SoftDeleteModelViewSet):
 class CatCiudadViewSet(SoftDeleteModelViewSet):
     queryset = CatCiudad.objects.all().order_by('id')
     serializer_class = CatCiudadSerializer
+    filter_backends = [filters.SearchFilter]
     search_fields = ['nombre']
     filterset_fields = ['estado_id']
 
@@ -53,18 +56,21 @@ class CatCiudadViewSet(SoftDeleteModelViewSet):
 class CatTipoAsentamientoViewSet(SoftDeleteModelViewSet):
     queryset = CatTipoAsentamiento.objects.all().order_by('id')
     serializer_class = CatTipoAsentamientoSerializer
+    filter_backends = [filters.SearchFilter]
     search_fields = ['nombre', 'clave']
 
 
 class CatZonaAsentamientoViewSet(SoftDeleteModelViewSet):
     queryset = CatZonaAsentamiento.objects.all().order_by('id')
     serializer_class = CatZonaAsentamientoSerializer
+    filter_backends = [filters.SearchFilter]
     search_fields = ['nombre']
 
 
 class CodigoPostalViewSet(SoftDeleteModelViewSet):
     queryset = CodigoPostal.objects.all().order_by('id')
     serializer_class = CodigoPostalSerializer
+    filter_backends = [filters.SearchFilter]
     search_fields = ['codigo']
     filterset_fields = ['municipio_id', 'ciudad_id']
 
@@ -72,5 +78,6 @@ class CodigoPostalViewSet(SoftDeleteModelViewSet):
 class AsentamientoViewSet(SoftDeleteModelViewSet):
     queryset = Asentamiento.objects.all().order_by('id')
     serializer_class = AsentamientoSerializer
+    filter_backends = [filters.SearchFilter]
     search_fields = ['nombre']
     filterset_fields = ['codigo_postal_id', 'tipo_asentamiento_id', 'zona_id']
