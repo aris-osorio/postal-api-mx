@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import CatEstado, CatMunicipio, CatCiudad
+from .models import CatEstado, CatMunicipio, CatCiudad, CodigoPostal
 
 User = get_user_model()
 
@@ -290,6 +290,110 @@ class CatCiudadTestCase(APITestCase):
         self.assertEqual(CatCiudad.objects.count(), 0)
 
         self.assertEqual(CatCiudad.all_objects.count(), 1)
+            
+    def test_soft_deleted_record_is_hidden_from_list(self):
+        """Ensure that soft-deleted records do not appear in list queries."""
+        self.client.delete(self.url_detail)
+        
+        response = self.client.get(self.url_list)
+        results = response.data.get('results', response.data)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(results), 0)
+        
+        
+class CodigoPostalTestCase(APITestCase):
+    """
+    Test suite for validating CodigoPostal API endpoints, 
+    foreign key dependencies, and soft-delete business logic.
+    """
+    
+    def setUp(self):
+        """Configure test data, hierarchical dependencies, and authentication credentials before each test."""
+        self.user = User.objects.create_user(username='test_user', password='securepassword123')
+        self.client.force_authenticate(user=self.user)
+        
+        self.estado = CatEstado.objects.create(clave='01', nombre='Aguascalientes')
+        self.municipio = CatMunicipio.objects.create(clave='001', nombre='Aguascalientes', estado_id=self.estado)
+        self.ciudad = CatCiudad.objects.create(clave='01', nombre='Aguascalientes', estado_id=self.estado)
+        
+        self.codigo_postal = CodigoPostal.objects.create(
+            codigo='20000',
+            municipio_id=self.municipio,
+            ciudad_id=self.ciudad
+        )
+        
+        self.url_list = '/api/v1/codigos-postales/'
+        self.url_detail = f'/api/v1/codigos-postales/{self.codigo_postal.id}/'
+    
+    def test_create_codigo_postal_success(self):
+        """Ensure an authenticated user can successfully create a new postal code."""
+        data = {
+            'codigo': '20001',
+            'municipio_id': self.municipio.id,
+            'ciudad_id': self.ciudad.id
+        }
+        response = self.client.post(self.url_list, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(CodigoPostal.objects.count(), 2)
+        self.assertEqual(response.data['codigo'], '20001')
+    
+    def test_create_codigo_postal_invalid_data(self):
+        """Ensure validation fails when required fields are missing."""
+        data = {'codigo': '', 'municipio_id': self.municipio.id}
+        response = self.client.post(self.url_list, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_codigo_postal_detail(self):
+        """Ensure a single postal code can be retrieved by its ID."""
+        response = self.client.get(self.url_detail)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['codigo'], self.codigo_postal.codigo)
+    
+    def test_list_codigos_postales(self):
+        """Ensure the endpoint returns the list of active postal codes."""
+        response = self.client.get(self.url_list)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.data.get('results', response.data)
+        self.assertGreaterEqual(len(results), 1)
+        self.assertEqual(results[0]['codigo'], '20000')
+
+    def test_update_codigo_postal_patch(self):
+        """Ensure partial updates (PATCH) modify the record correctly."""
+        data = {'codigo': '20999'}
+        response = self.client.patch(self.url_detail, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.codigo_postal.refresh_from_db()
+        self.assertEqual(self.codigo_postal.codigo, '20999')
+
+    def test_search_codigos_postales(self):
+        """Ensure search fields filter results correctly by postal code."""
+        CodigoPostal.objects.create(codigo='20100', municipio_id=self.municipio)
+        
+        response = self.client.get(f"{self.url_list}?search=20100")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data.get('results', response.data)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['codigo'], '20100')
+    
+    def test_soft_delete_operation(self):
+        """Ensure that a DELETE request performs a soft delete and hides the record from active queries."""
+        response = self.client.delete(self.url_detail)
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.codigo_postal.refresh_from_db()
+        self.assertIsNotNone(self.codigo_postal.deleted_at)
+
+        self.assertEqual(CodigoPostal.objects.count(), 0)
+
+        self.assertEqual(CodigoPostal.all_objects.count(), 1)
             
     def test_soft_deleted_record_is_hidden_from_list(self):
         """Ensure that soft-deleted records do not appear in list queries."""
