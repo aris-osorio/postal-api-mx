@@ -20,29 +20,16 @@ class CatEstadoTestCase(APITestCase):
         self.estado = CatEstado.objects.create(clave='01', nombre='Aguascalientes')
         self.url_list = '/api/v1/estados/'
         self.url_detail = f'/api/v1/estados/{self.estado.id}/'
-
-    def test_soft_delete_operation(self):
-        """Ensure that a DELETE request performs a soft delete and hides the record from active queries."""
-        response = self.client.delete(self.url_detail)
-        
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-        self.estado.refresh_from_db()
-        self.assertIsNotNone(self.estado.deleted_at)
-
-        self.assertEqual(CatEstado.objects.count(), 0)
-
-        self.assertEqual(CatEstado.all_objects.count(), 1)
-        
+    
     def test_create_cat_estado_success(self):
         """Ensure an authenticated user can successfully create a new state."""
         data = {'clave': '02', 'nombre': 'Baja California'}
         response = self.client.post(self.url_list, data, format='json')
         
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(CatEstado.objects.count(), 2)  # El del setUp + este nuevo
+        self.assertEqual(CatEstado.objects.count(), 2)
         self.assertEqual(response.data['nombre'], 'Baja California')
-
+    
     def test_create_cat_estado_invalid_data(self):
         """Ensure validation fails when required fields are missing."""
         data = {'clave': ''}
@@ -56,6 +43,15 @@ class CatEstadoTestCase(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['nombre'], self.estado.nombre)
+    
+    def test_list_cat_estados(self):
+        """Ensure the endpoint returns the list of active states."""
+        response = self.client.get(self.url_list)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.data.get('results', response.data)
+        self.assertGreaterEqual(len(results), 1)
+        self.assertEqual(results[0]['nombre'], 'Aguascalientes')
 
     def test_update_cat_estado_patch(self):
         """Ensure partial updates (PATCH) modify the record correctly."""
@@ -76,6 +72,20 @@ class CatEstadoTestCase(APITestCase):
         results = response.data.get('results', response.data)
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]['nombre'], 'Jalisco')
+    
+    def test_soft_delete_operation(self):
+        """Ensure that a DELETE request performs a soft delete and hides the record from active queries."""
+        response = self.client.delete(self.url_detail)
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.estado.refresh_from_db()
+        self.assertIsNotNone(self.estado.deleted_at)
+
+        self.assertEqual(CatEstado.objects.count(), 0)
+
+        self.assertEqual(CatEstado.all_objects.count(), 1)
+            
 
     def test_soft_deleted_record_is_hidden_from_list(self):
         """Ensure that soft-deleted records do not appear in list queries."""
