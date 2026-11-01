@@ -36,6 +36,7 @@ class CatMunicipio(BaseModel):
 
 class CatCiudad(BaseModel):
     estado_id = models.ForeignKey(CatEstado, on_delete=models.PROTECT, db_column='estado_id')
+    clave = models.CharField(max_length=3, help_text="Clave de ciudad por estado", default="")
     nombre = models.CharField(max_length=150)
 
     class Meta:
