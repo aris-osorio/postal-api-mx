@@ -198,3 +198,105 @@ class CatMunicipioTestCase(APITestCase):
         
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(results), 0)
+        
+        
+class CatCiudadTestCase(APITestCase):
+    """
+    Test suite for validating CatCiudad API endpoints, 
+    authentication barriers, and soft-delete business logic.
+    """
+    
+    def setUp(self):
+        """Configure test data, parent hierarchy, and authentication credentials before each test."""
+        self.user = User.objects.create_user(username='test_user', password='securepassword123')
+        self.client.force_authenticate(user=self.user)
+        
+        self.estado = CatEstado.objects.create(clave='01', nombre='Aguascalientes')
+        
+        self.ciudad = CatCiudad.objects.create(
+            clave='01', 
+            nombre='Aguascalientes', 
+            estado_id=self.estado
+        )
+        
+        self.url_list = '/api/v1/ciudades/'
+        self.url_detail = f'/api/v1/ciudades/{self.ciudad.id}/'
+    
+    def test_create_cat_ciudad_success(self):
+        """Ensure an authenticated user can successfully create a new city."""
+        data = {
+            'clave': '03', 
+            'nombre': 'San Francisco de los Romo', 
+            'estado_id': self.estado.id
+        }
+        response = self.client.post(self.url_list, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(CatCiudad.objects.count(), 2)
+        self.assertEqual(response.data['nombre'], 'San Francisco de los Romo')
+    
+    def test_create_cat_ciudad_invalid_data(self):
+        """Ensure validation fails when required fields are missing."""
+        data = {'clave': '', 'estado_id': self.estado.id}
+        response = self.client.post(self.url_list, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_cat_ciudad_detail(self):
+        """Ensure a single city can be retrieved by its ID."""
+        response = self.client.get(self.url_detail)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['nombre'], self.ciudad.nombre)
+    
+    def test_list_cat_ciudades(self):
+        """Ensure the endpoint returns the list of active cities."""
+        response = self.client.get(self.url_list)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.data.get('results', response.data)
+        self.assertGreaterEqual(len(results), 1)
+        self.assertEqual(results[0]['nombre'], 'Aguascalientes')
+
+    def test_update_cat_ciudad_patch(self):
+        """Ensure partial updates (PATCH) modify the record correctly."""
+        data = {'nombre': 'Aguascalientes Updated'}
+        response = self.client.patch(self.url_detail, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.ciudad.refresh_from_db()
+        self.assertEqual(self.ciudad.nombre, 'Aguascalientes Updated')
+
+    def test_search_cat_ciudades(self):
+        """Ensure search fields filter results correctly by name or code."""
+        CatCiudad.objects.create(clave='03', nombre='San Francisco de los Romo', estado_id=self.estado)
+        
+        response = self.client.get(f"{self.url_list}?search=San Francisco de los Romo")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data.get('results', response.data)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['nombre'], 'San Francisco de los Romo')
+    
+    def test_soft_delete_operation(self):
+        """Ensure that a DELETE request performs a soft delete and hides the record from active queries."""
+        response = self.client.delete(self.url_detail)
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.ciudad.refresh_from_db()
+        self.assertIsNotNone(self.ciudad.deleted_at)
+
+        self.assertEqual(CatCiudad.objects.count(), 0)
+
+        self.assertEqual(CatCiudad.all_objects.count(), 1)
+            
+    def test_soft_deleted_record_is_hidden_from_list(self):
+        """Ensure that soft-deleted records do not appear in list queries."""
+        self.client.delete(self.url_detail)
+        
+        response = self.client.get(self.url_list)
+        results = response.data.get('results', response.data)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(results), 0)
