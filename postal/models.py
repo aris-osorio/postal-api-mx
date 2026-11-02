@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Q
 from django.core.validators import MinLengthValidator
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from core.models import BaseModel
@@ -26,6 +27,14 @@ class CatEstado(BaseModel):
                 name='unique_cat_estado_nombre_activo'
             )
         ]
+    
+    def clean(self):
+        super().clean()
+        qs = CatEstado.objects.filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+        if qs.exists():
+            raise ValidationError("Ya existe un estado activo con esa clave o nombre.")
 
     def __str__(self):
         return f"{self.clave} - {self.nombre}"
@@ -52,6 +61,17 @@ class CatMunicipio(BaseModel):
                 name='unique_municipio_estado_nombre_activo'
             )
         ]
+    
+    def clean(self):
+        super().clean()
+        if self.estado_id_id:
+            qs = CatMunicipio.objects.filter(
+                estado_id=self.estado_id
+            ).filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.exists():
+                raise ValidationError("Ya existe un municipio activo con esa clave o nombre en este estado.")
 
     def __str__(self):
         return f"{self.nombre} ({self.estado_id.nombre})"
@@ -72,13 +92,23 @@ class CatCiudad(BaseModel):
                 condition=Q(deleted_at__isnull=True),
                 name='unique_ciudad_estado_clave_activo'
             ),
-            
             models.UniqueConstraint(
                 fields=['estado_id', 'nombre'],
                 condition=Q(deleted_at__isnull=True),
                 name='unique_ciudad_estado_nombre_activo'
             )
         ]
+    
+    def clean(self):
+        super().clean()
+        if self.estado_id_id:
+            qs = CatCiudad.objects.filter(
+                estado_id=self.estado_id
+            ).filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.exists():
+                raise ValidationError("Ya existe una ciudad activa con esa clave o nombre en este estado.")
 
     def __str__(self):
         return self.nombre
@@ -110,6 +140,14 @@ class CodigoPostal(BaseModel):
                 name='unique_codigo_postal_activo'
             )
         ]
+    
+    def clean(self):
+        super().clean()
+        qs = CodigoPostal.objects.filter(codigo=self.codigo)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+        if qs.exists():
+            raise ValidationError("Ya existe un código postal activo con ese código.")
 
     def __str__(self):
         return self.codigo
@@ -135,6 +173,14 @@ class CatTipoAsentamiento(BaseModel):
                 name='unique_tipo_asentamiento_nombre_activo'
             )
         ]
+    
+    def clean(self):
+        super().clean()
+        qs = CatTipoAsentamiento.objects.filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+        if qs.exists():
+            raise ValidationError("Ya existe un tipo de asentamiento activo con esa clave o nombre.")
 
     def __str__(self):
         return self.nombre
@@ -154,6 +200,14 @@ class CatZonaAsentamiento(BaseModel):
                 name='unique_zona_asentamiento_nombre_activo'
             )
         ]
+        
+    def clean(self):
+        super().clean()
+        qs = CatZonaAsentamiento.objects.filter(nombre__iexact=self.nombre)
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
+        if qs.exists():
+            raise ValidationError("Ya existe una zona de asentamiento activa con ese nombre.")
 
     def __str__(self):
         return self.nombre
@@ -177,7 +231,7 @@ class Asentamiento(BaseModel):
         blank=True, 
         db_column='zona_id'
     )
-    nombre = models.CharField(max_length=150, help_text="Nombre del asentamineto (Ej: Colonia, Fraccionamiento, Rancho)")
+    nombre = models.CharField(max_length=150, help_text="Nombre del asentamiento")
 
     class Meta:
         db_table = 'asentamientos'
@@ -186,6 +240,25 @@ class Asentamiento(BaseModel):
         indexes = [
             models.Index(fields=['nombre', 'codigo_postal_id'], name='idx_asentamiento_busqueda'),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['codigo_postal_id', 'nombre'],
+                condition=Q(deleted_at__isnull=True),
+                name='unique_asentamiento_cp_nombre_activo'
+            )
+        ]
+
+    def clean(self):
+        super().clean()
+        if self.codigo_postal_id_id:
+            qs = Asentamiento.objects.filter(
+                codigo_postal_id=self.codigo_postal_id,
+                nombre__iexact=self.nombre
+            )
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            if qs.exists():
+                raise ValidationError("Ya existe un asentamiento activo con este nombre para el código postal seleccionado.")
 
     def __str__(self):
         return f"{self.nombre} ({self.codigo_postal_id.codigo})"
