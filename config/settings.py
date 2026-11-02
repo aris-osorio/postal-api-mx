@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import environ
 from pathlib import Path
 from datetime import timedelta
+from django.templatetags.static import static
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -41,6 +42,7 @@ AUTH_USER_MODEL = 'accounts.User'
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -161,7 +163,102 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+UNFOLD = {
+    "SITE_TITLE": "Postal MX",
+    "SITE_HEADER": "Postal MX",
+    "SITE_URL": "/admin/",
+    "SITE_ICON": {
+        "light": lambda request: static("images/icon-light.svg"),
+        "dark": lambda request: static("images/icon-dark.svg"),
+    },
+    "SITE_FAVICONS": [
+        {
+            "rel": "icon",
+            "sizes": "512x512",
+            "type": "image/x-icon",
+            "href": lambda request: static("images/favicon.ico"),
+        },
+    ],
+    "LOGIN": {
+        "image": lambda request: static("images/icon-light.svg"),
+    },
+    "COLORS": {
+        "font": {
+            "subtle": "107 114 128",
+            "default": "55 65 81",
+            "muted": "156 163 175",
+            "bold": "17 24 39",
+        },
+        "primary": {
+            "50": "253 242 248",
+            "100": "252 231, 243",
+            "200": "251 207 232",
+            "300": "244 114 182",
+            "400": "236 72 153",
+            "500": "230 0 126",
+            "600": "219 28 113",
+            "700": "190 18 97",
+            "800": "159 18 80",
+            "900": "133 21 70",
+            "950": "80 8 38",
+        },
+    },
+    "SIDEBAR": {
+        "show_search": True,
+        "show_all_applications": True,
+        "navigation": [
+            {
+                "title": "Gestión Postal",
+                "separator": True,
+                "items": [
+                    {
+                        "title": "Estados",
+                        "icon": "public",
+                        "link": "/admin/postal/catestado/",
+                    },
+                    {
+                        "title": "Ciudades",
+                        "icon": "location_city",
+                        "link": "/admin/postal/catciudad/",
+                    },
+                    {
+                        "title": "Municipios",
+                        "icon": "map",
+                        "link": "/admin/postal/catmunicipio/",
+                    },
+                    {
+                        "title": "Códigos Postales",
+                        "icon": "local_post_office",
+                        "link": "/admin/postal/codigopostal/",
+                    },
+                    {
+                        "title": "Asentamientos",
+                        "icon": "location_on",
+                        "link": "/admin/postal/asentamiento/",
+                    },
+                    {
+                        "title": "Tipos de Asentamientos",
+                        "icon": "category",
+                        "link": "/admin/postal/cattipoasentamiento/",
+                    },
+                    {
+                        "title": "Zonas de Asentamientos",
+                        "icon": "layers",
+                        "link": "/admin/postal/catzonaasentamiento/",
+                    },
+                ],
+            },
+        ],
+    },
+}

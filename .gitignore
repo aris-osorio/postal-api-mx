@@ -108,7 +108,7 @@ venv.bak/
 .sqlite3
 migrations/
 media/
-static/
+staticfiles/
 .DS_Store
 
 #celery beat
