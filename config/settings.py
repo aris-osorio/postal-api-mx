@@ -271,6 +271,21 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Postal MX',
     'DESCRIPTION': 'API REST para consulta y validación de códigos postales de México',
     'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'TAGS': [
+        {
+            'name': 'Autenticación',
+            'description': 'Endpoints para iniciar sesión y renovar tokens JWT. '
+                           'Todos los demás endpoints requieren un token de acceso.',
+        },
+        {'name': 'Estados'},
+        {'name': 'Municipios'},
+        {'name': 'Ciudades'},
+        {'name': 'Códigos postales'},
+        {'name': 'Tipos de asentamiento'},
+        {'name': 'Zonas de asentamiento'},
+        {'name': 'Asentamientos'},
+    ],
     'SERVERS': [
         {
             'url': API_BASE_URL,
