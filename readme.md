@@ -158,21 +158,32 @@ El proyecto estará disponible en `http://127.0.0.1:8000/`.
 
 ```text
 postal-api-mx/
+├── accounts/            # Autenticación (login y renovación de tokens JWT)
 ├── config/              # Configuración principal del proyecto (settings, urls, wsgi/asgi)
 ├── core/                # Funcionalidades base y utilidades generales
 ├── postal/              # Aplicación principal (Modelos, Vistas, Serializadores, Admin)
 │   ├── migrations/      # Historial de migraciones de base de datos
+│   ├── admin.py         # Registro de modelos en el panel de administración
+│   ├── apps.py          # Configuración de la aplicación
 │   ├── models.py        # Modelos (Estado, Municipio, Ciudad, Asentamiento, CP)
 │   ├── serializers.py   # Serializadores de Django REST Framework
-│   ├── views.py         # Endpoints y lógica de la API
-│   └── urls.py          # Rutas locales de la app postal
+│   ├── tests.py         # Pruebas unitarias
+│   ├── urls.py          # Rutas locales de la app postal
+│   └── views.py         # Endpoints y lógica de la API
 ├── static/              # Archivos estáticos en desarrollo
 ├── staticfiles/         # Archivos recolectados en producción (collectstatic)
 ├── .env                 # Variables de entorno (excluido de git)
 ├── .gitignore
 ├── manage.py
+├── README.md
 └── requirements.txt
 ```
+
+## Documentación
+
+- **Redoc:** `/` o `/api/redoc/` (documentación de referencia)
+- **Swagger UI:** `/api/docs/` (permite probar los endpoints)
+- **Panel de administración:** `/admin/`
 
 ## Endpoints de la API REST
 
