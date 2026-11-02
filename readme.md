@@ -59,6 +59,7 @@ Crea un archivo llamado `.env` en la raíz del proyecto para conectar la aplicac
 DEBUG=True
 SECRET_KEY='tu_secret_key_generada_aqui'
 ALLOWED_HOSTS=*
+API_BASE_URL=http://127.0.0.1:8000
 
 # PostgreSQL
 DB_NAME=nombre_de_tu_db
@@ -67,6 +68,8 @@ DB_PASSWORD=contrasena_segura_db
 DB_HOST=localhost
 DB_PORT=5432
 ```
+
+`API_BASE_URL` es la URL base que se muestra en la documentación interactiva. En producción cámbiala por tu dominio (por ejemplo, `https://tu-dominio.com`).
 
 > **Nota de seguridad:** Nunca subas el archivo `.env` a tu repositorio remoto. Asegúrate de incluir `.env` dentro del archivo `.gitignore`.
 
@@ -172,6 +175,41 @@ postal-api-mx/
 ```
 
 ## Endpoints de la API REST
+
+### Autenticación
+
+La API usa tokens JWT. Todos los endpoints requieren un token de acceso en el encabezado `Authorization`.
+
+| Método HTTP | Endpoint | Descripción |
+| :--- | :--- | :--- |
+| **POST** | `/api/v1/token/` | Recibe `username` y `password` y devuelve los tokens `access` y `refresh` (`AuthTokenObtainPairView`). |
+| **POST** | `/api/v1/token/refresh/` | Recibe un `refresh` válido y devuelve un nuevo `access` (`AuthTokenRefreshView`). |
+
+Ejemplo de petición para obtener los tokens:
+
+```json
+{
+    "username": "mi_usuario",
+    "password": "mi_contraseña"
+}
+```
+
+Respuesta:
+
+```json
+{
+    "refresh": "eyJhbGciOi...",
+    "access": "eyJhbGciOi..."
+}
+```
+
+Para consumir cualquier otro endpoint, envía el token de acceso en cada petición:
+
+```text
+Authorization: Bearer <access>
+```
+
+### Recursos
 
 La API expone los siguientes recursos a través del enrutador por defecto (`DefaultRouter`) y vistas personalizadas:
 
