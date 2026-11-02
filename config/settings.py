@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
     'rest_framework_simplejwt.token_blacklist',
     'accounts',
     'postal',
@@ -122,6 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Django rest framework
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
@@ -261,4 +263,20 @@ UNFOLD = {
             },
         ],
     },
+}
+
+API_BASE_URL = env('API_BASE_URL', default='http://127.0.0.1:8000')
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Postal MX',
+    'DESCRIPTION': 'API REST para consulta y validación de códigos postales de México',
+    'VERSION': '1.0.0',
+    'SERVERS': [
+        {
+            'url': API_BASE_URL,
+            'description': 'Desarrollo local' if DEBUG else 'Producción',
+        },
+    ],
+    'SWAGGER_UI_FAVICON_HREF': STATIC_URL + 'images/favicon.ico',
+    'REDOC_DIST': 'https://cdn.jsdelivr.net/npm/redoc@2.1.5',
 }
