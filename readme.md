@@ -37,7 +37,7 @@ python -m venv venv
 
 ```bash
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements/local.txt
 ```
 
 ### 4. Generar SECRET_KEY de Django
