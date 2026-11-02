@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, re_path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     CatEstadoViewSet,
@@ -7,6 +7,7 @@ from .views import (
     CatTipoAsentamientoViewSet,
     CatZonaAsentamientoViewSet,
     CodigoPostalViewSet,
+    CodigoPostalDetailsView,
     AsentamientoViewSet,
 )
 
@@ -21,4 +22,5 @@ router.register(r'asentamientos', AsentamientoViewSet, basename='asentamiento')
 
 urlpatterns = [
     path('', include(router.urls)),
+    re_path(r'^codigos-postales/detalles/(?P<codigo>\d{5})/$', CodigoPostalDetailsView.as_view(), name='codigo-postal-detalles'),
 ]

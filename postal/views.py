@@ -1,4 +1,7 @@
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from rest_framework.generics import RetrieveAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework import viewsets, filters
 from .models import (
     CatEstado,
@@ -16,6 +19,7 @@ from .serializers import (
     CatTipoAsentamientoSerializer,
     CatZonaAsentamientoSerializer,
     CodigoPostalSerializer,
+    CodigoPostalDetailSerializer,
     AsentamientoSerializer,
 )
 
@@ -73,6 +77,19 @@ class CodigoPostalViewSet(SoftDeleteModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['codigo']
     filterset_fields = ['municipio_id', 'ciudad_id']
+    
+
+class CodigoPostalDetailsView(RetrieveAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = CodigoPostalDetailSerializer
+    
+    def get_object(self):
+        codigo = self.kwargs.get('codigo')
+        
+        return get_object_or_404(
+            CodigoPostal.objects.filter(deleted_at__isnull=True),
+            codigo=codigo
+        )
 
 
 class AsentamientoViewSet(SoftDeleteModelViewSet):

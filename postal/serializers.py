@@ -72,3 +72,28 @@ class AsentamientoSerializer(serializers.ModelSerializer):
             'created_at', 
             'updated_at'
         ]
+
+
+class CodigoPostalDetailSerializer(serializers.ModelSerializer):
+    municipio = serializers.CharField(source='municipio_id.nombre', read_only=True)
+    estado = serializers.CharField(source='municipio_id.estado_id.nombre', read_only=True)
+    ciudad = serializers.CharField(source='ciudad_id.nombre', allow_null=True, read_only=True)
+    asentamientos = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CodigoPostal
+        fields = [
+            'codigo',
+            'municipio',
+            'estado',
+            'ciudad',
+            'asentamientos'
+        ]
+
+    def get_asentamientos(self, obj):
+        asentamientos_activos = Asentamiento.objects.filter(
+            codigo_postal_id=obj, 
+            deleted_at__isnull=True
+        ).values_list('nombre', flat=True)
+        
+        return list(asentamientos_activos)
