@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import CatEstado, CatMunicipio, CatCiudad, CodigoPostal, CatTipoAsentamiento
+from .models import CatEstado, CatMunicipio, CatCiudad, CodigoPostal, CatTipoAsentamiento, CatZonaAsentamiento
 
 User = get_user_model()
 
@@ -492,6 +492,102 @@ class CatTipoAsentamientoTestCase(APITestCase):
         self.assertEqual(CatTipoAsentamiento.objects.count(), 0)
 
         self.assertEqual(CatTipoAsentamiento.all_objects.count(), 1)
+            
+    def test_soft_deleted_record_is_hidden_from_list(self):
+        """Ensure that soft-deleted records do not appear in list queries."""
+        self.client.delete(self.url_detail)
+        
+        response = self.client.get(self.url_list)
+        results = response.data.get('results', response.data)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(results), 0)
+        
+        
+class CatZonaAsentamientoTestCase(APITestCase):
+    """
+    Test suite for validating CatZonaAsentamiento API endpoints, 
+    authentication barriers, and soft-delete business logic.
+    """
+    
+    def setUp(self):
+        """Configure test data and authentication credentials before each test."""
+        self.user = User.objects.create_user(username='test_user', password='securepassword123')
+        self.client.force_authenticate(user=self.user)
+        
+        self.zona_asentamiento = CatZonaAsentamiento.objects.create(
+            nombre='Urbano'
+        )
+        
+        self.url_list = '/api/v1/zonas-asentamiento/'
+        self.url_detail = f'/api/v1/zonas-asentamiento/{self.zona_asentamiento.id}/'
+    
+    def test_create_cat_zona_asentamiento_success(self):
+        """Ensure an authenticated user can successfully create a new settlement zone."""
+        data = {
+            'nombre': 'Rural'
+        }
+        response = self.client.post(self.url_list, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(CatZonaAsentamiento.objects.count(), 2)
+        self.assertEqual(response.data['nombre'], 'Rural')
+    
+    def test_create_cat_zona_asentamiento_invalid_data(self):
+        """Ensure validation fails when required fields are missing."""
+        data = {'nombre': ''}
+        response = self.client.post(self.url_list, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_retrieve_cat_zona_asentamiento_detail(self):
+        """Ensure a single settlement zone can be retrieved by its ID."""
+        response = self.client.get(self.url_detail)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['nombre'], self.zona_asentamiento.nombre)
+    
+    def test_list_cat_zonas_asentamiento(self):
+        """Ensure the endpoint returns the list of active settlement zones."""
+        response = self.client.get(self.url_list)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        results = response.data.get('results', response.data)
+        self.assertGreaterEqual(len(results), 1)
+        self.assertEqual(results[0]['nombre'], 'Urbano')
+
+    def test_update_cat_zona_asentamiento_patch(self):
+        """Ensure partial updates (PATCH) modify the record correctly."""
+        data = {'nombre': 'Urbano Updated'}
+        response = self.client.patch(self.url_detail, data, format='json')
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.zona_asentamiento.refresh_from_db()
+        self.assertEqual(self.zona_asentamiento.nombre, 'Urbano Updated')
+
+    def test_search_cat_zonas_asentamiento(self):
+        """Ensure search fields filter results correctly by name."""
+        CatZonaAsentamiento.objects.create(nombre='Rural')
+        
+        response = self.client.get(f"{self.url_list}?search=Rural")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        results = response.data.get('results', response.data)
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0]['nombre'], 'Rural')
+    
+    def test_soft_delete_operation(self):
+        """Ensure that a DELETE request performs a soft delete and hides the record from active queries."""
+        response = self.client.delete(self.url_detail)
+        
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.zona_asentamiento.refresh_from_db()
+        self.assertIsNotNone(self.zona_asentamiento.deleted_at)
+
+        self.assertEqual(CatZonaAsentamiento.objects.count(), 0)
+
+        self.assertEqual(CatZonaAsentamiento.all_objects.count(), 1)
             
     def test_soft_deleted_record_is_hidden_from_list(self):
         """Ensure that soft-deleted records do not appear in list queries."""
