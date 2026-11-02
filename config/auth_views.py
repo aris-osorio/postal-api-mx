@@ -33,7 +33,10 @@ class AuthTokenObtainPairView(TokenObtainPairView):
     tags=['Autenticación'],
     summary='Renovar token de acceso',
     description=(
-        'Recibe un token `refresh` válido y devuelve un nuevo token `access`.\n\n'
+        'Recibe un token `refresh` válido y devuelve un par de tokens JWT:\n\n'
+        '- `access`: se envía en cada petición en el encabezado '
+        '`Authorization: Bearer <access>`. Tiene una vida corta.\n'
+        '- `refresh`: sirve para obtener un nuevo `access` sin volver a iniciar sesión.\n\n'
         'Si el `refresh` expiró o es inválido responde `401` y hay que '
         'iniciar sesión de nuevo.'
     ),
@@ -45,7 +48,7 @@ class AuthTokenObtainPairView(TokenObtainPairView):
         ),
         OpenApiExample(
             'Respuesta exitosa',
-            value={'access': 'eyJhbGciOi...'},
+            value={'refresh': 'eyJhbGciOi...', 'access': 'eyJhbGciOi...'},
             response_only=True,
         ),
     ],

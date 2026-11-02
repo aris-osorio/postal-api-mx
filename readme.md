@@ -194,7 +194,7 @@ La API usa tokens JWT. Todos los endpoints requieren un token de acceso en el en
 | Método HTTP | Endpoint | Descripción |
 | :--- | :--- | :--- |
 | **POST** | `/api/v1/token/` | Recibe `username` y `password` y devuelve los tokens `access` y `refresh` (`AuthTokenObtainPairView`). |
-| **POST** | `/api/v1/token/refresh/` | Recibe un `refresh` válido y devuelve un nuevo `access` (`AuthTokenRefreshView`). |
+| **POST** | `/api/v1/token/refresh/` | Recibe un `refresh` válido y devuelve un nuevo `access` y `refresh` (`AuthTokenRefreshView`). |
 
 Ejemplo de petición para obtener los tokens:
 
