@@ -32,7 +32,7 @@ environ.Env.read_env(BASE_DIR / '.env')
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('SECRET_KEY')
+DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 
@@ -72,7 +72,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        "DIRS": [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -179,7 +179,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 UNFOLD = {
     "SITE_TITLE": "Postal MX",
     "SITE_HEADER": "Postal MX",
-    "SITE_URL": "/admin/",
+    "SITE_URL": "/",
     "SITE_ICON": {
         "light": lambda request: static("images/icon-light.svg"),
         "dark": lambda request: static("images/icon-dark.svg"),
@@ -187,7 +187,7 @@ UNFOLD = {
     "SITE_FAVICONS": [
         {
             "rel": "icon",
-            "sizes": "512x512",
+            "sizes": "any",
             "type": "image/x-icon",
             "href": lambda request: static("images/favicon.ico"),
         },
@@ -268,7 +268,7 @@ UNFOLD = {
 API_BASE_URL = env('API_BASE_URL', default='http://127.0.0.1:8000')
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Postal MX',
+    'TITLE': 'Documentación API | Postal MX',
     'DESCRIPTION': 'API REST para consulta y validación de códigos postales de México',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
@@ -292,6 +292,6 @@ SPECTACULAR_SETTINGS = {
             'description': 'Desarrollo local' if DEBUG else 'Producción',
         },
     ],
-    'SWAGGER_UI_FAVICON_HREF': STATIC_URL + 'images/favicon.ico',
+    'SWAGGER_UI_FAVICON_HREF': '/static/images/favicon.ico',
     'REDOC_DIST': 'https://cdn.jsdelivr.net/npm/redoc@2.1.5',
 }

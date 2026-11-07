@@ -18,16 +18,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import RedirectView
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
     SpectacularRedocView,
 )
 from .auth_views import AuthTokenObtainPairView, AuthTokenRefreshView
+from .views import HomeView
 
 urlpatterns = [
-    path('', RedirectView.as_view(pattern_name='redoc', permanent=False)),
+    path("", HomeView.as_view(), name="home"),
     path('admin/', admin.site.urls),
     path('api/v1/', include('postal.urls')),
     path('api/v1/token/', AuthTokenObtainPairView.as_view(), name='token_obtain_pair'),
