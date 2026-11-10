@@ -74,7 +74,7 @@ class CatMunicipio(BaseModel):
                 raise ValidationError("Ya existe un municipio activo con esa clave o nombre en este estado.")
 
     def __str__(self):
-        return f"{self.nombre} ({self.estado_id.nombre})"
+        return f"{self.clave} - {self.nombre} ({self.estado_id.nombre})"
 
 
 class CatCiudad(BaseModel):
@@ -111,7 +111,7 @@ class CatCiudad(BaseModel):
                 raise ValidationError("Ya existe una ciudad activa con esa clave o nombre en este estado.")
 
     def __str__(self):
-        return self.nombre
+        return f"{self.clave} - {self.nombre} ({self.estado_id.nombre})"
 
 
 class CodigoPostal(BaseModel):
@@ -150,7 +150,7 @@ class CodigoPostal(BaseModel):
             raise ValidationError("Ya existe un código postal activo con ese código.")
 
     def __str__(self):
-        return self.codigo
+        return f"{self.codigo} - {self.municipio_id.nombre} ({self.municipio_id.estado_id.nombre})"
 
 
 class CatTipoAsentamiento(BaseModel):
@@ -176,14 +176,14 @@ class CatTipoAsentamiento(BaseModel):
     
     def clean(self):
         super().clean()
-        qs = CatTipoAsentamiento.objects.filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
+        qs = CatTipoAsentamiento.active_objects.filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
         if self.pk:
             qs = qs.exclude(pk=self.pk)
         if qs.exists():
             raise ValidationError("Ya existe un tipo de asentamiento activo con esa clave o nombre.")
 
     def __str__(self):
-        return self.nombre
+        return f"{self.clave} - {self.nombre}"
 
 
 class CatZonaAsentamiento(BaseModel):
@@ -203,7 +203,7 @@ class CatZonaAsentamiento(BaseModel):
         
     def clean(self):
         super().clean()
-        qs = CatZonaAsentamiento.objects.filter(nombre__iexact=self.nombre)
+        qs = CatZonaAsentamiento.active_objects.filter(nombre__iexact=self.nombre)
         if self.pk:
             qs = qs.exclude(pk=self.pk)
         if qs.exists():
@@ -251,7 +251,7 @@ class Asentamiento(BaseModel):
     def clean(self):
         super().clean()
         if self.codigo_postal_id_id:
-            qs = Asentamiento.objects.filter(
+            qs = Asentamiento.active_objects.filter(
                 codigo_postal_id=self.codigo_postal_id,
                 nombre__iexact=self.nombre
             )
@@ -261,4 +261,4 @@ class Asentamiento(BaseModel):
                 raise ValidationError("Ya existe un asentamiento activo con este nombre para el código postal seleccionado.")
 
     def __str__(self):
-        return f"{self.nombre} ({self.codigo_postal_id.codigo})"
+        return f"{self.nombre} - {self.codigo_postal_id.codigo}"
