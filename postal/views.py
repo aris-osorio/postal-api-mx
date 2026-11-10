@@ -88,7 +88,7 @@ class SoftDeleteModelViewSet(viewsets.ModelViewSet):
 )
 class CatEstadoViewSet(SoftDeleteModelViewSet):
     """Catálogo de estados de México."""
-    queryset = CatEstado.objects.all().order_by('id')
+    queryset = CatEstado.active_objects.all().order_by('id')
     serializer_class = CatEstadoSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nombre', 'clave']
@@ -106,7 +106,7 @@ class CatEstadoViewSet(SoftDeleteModelViewSet):
 )
 class CatMunicipioViewSet(SoftDeleteModelViewSet):
     """Catálogo de municipios de México."""
-    queryset = CatMunicipio.objects.all().order_by('id')
+    queryset = CatMunicipio.active_objects.all().order_by('id')
     serializer_class = CatMunicipioSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nombre', 'clave']
@@ -125,7 +125,7 @@ class CatMunicipioViewSet(SoftDeleteModelViewSet):
 )
 class CatCiudadViewSet(SoftDeleteModelViewSet):
     """Catálogo de ciudades de México."""
-    queryset = CatCiudad.objects.all().order_by('id')
+    queryset = CatCiudad.active_objects.all().order_by('id')
     serializer_class = CatCiudadSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nombre']
@@ -144,7 +144,7 @@ class CatCiudadViewSet(SoftDeleteModelViewSet):
 )
 class CatTipoAsentamientoViewSet(SoftDeleteModelViewSet):
     """Catálogo de tipos de asentamiento."""
-    queryset = CatTipoAsentamiento.objects.all().order_by('id')
+    queryset = CatTipoAsentamiento.active_objects.all().order_by('id')
     serializer_class = CatTipoAsentamientoSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nombre', 'clave']
@@ -161,7 +161,7 @@ class CatTipoAsentamientoViewSet(SoftDeleteModelViewSet):
 )
 class CatZonaAsentamientoViewSet(SoftDeleteModelViewSet):
     """Catálogo de zonas de asentamiento."""
-    queryset = CatZonaAsentamiento.objects.all().order_by('id')
+    queryset = CatZonaAsentamiento.active_objects.all().order_by('id')
     serializer_class = CatZonaAsentamientoSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nombre']
@@ -180,7 +180,7 @@ class CatZonaAsentamientoViewSet(SoftDeleteModelViewSet):
 )
 class CodigoPostalViewSet(SoftDeleteModelViewSet):
     """Gestión de códigos postales."""
-    queryset = CodigoPostal.objects.all().order_by('id')
+    queryset = CodigoPostal.active_objects.all().order_by('id')
     serializer_class = CodigoPostalSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['codigo']
@@ -234,7 +234,7 @@ class CodigoPostalDetailsView(RetrieveAPIView):
 )
 class AsentamientoViewSet(SoftDeleteModelViewSet):
     """Gestión de asentamientos."""
-    queryset = Asentamiento.objects.all().order_by('id')
+    queryset = Asentamiento.active_objects.all().order_by('id')
     serializer_class = AsentamientoSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['nombre']

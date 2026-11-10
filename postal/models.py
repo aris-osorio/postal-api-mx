@@ -30,7 +30,7 @@ class CatEstado(BaseModel):
     
     def clean(self):
         super().clean()
-        qs = CatEstado.objects.filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
+        qs = CatEstado.active_objects.filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
         if self.pk:
             qs = qs.exclude(pk=self.pk)
         if qs.exists():
@@ -65,7 +65,7 @@ class CatMunicipio(BaseModel):
     def clean(self):
         super().clean()
         if self.estado_id_id:
-            qs = CatMunicipio.objects.filter(
+            qs = CatMunicipio.active_objects.filter(
                 estado_id=self.estado_id
             ).filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
             if self.pk:
@@ -102,7 +102,7 @@ class CatCiudad(BaseModel):
     def clean(self):
         super().clean()
         if self.estado_id_id:
-            qs = CatCiudad.objects.filter(
+            qs = CatCiudad.active_objects.filter(
                 estado_id=self.estado_id
             ).filter(Q(clave=self.clave) | Q(nombre__iexact=self.nombre))
             if self.pk:
@@ -143,7 +143,7 @@ class CodigoPostal(BaseModel):
     
     def clean(self):
         super().clean()
-        qs = CodigoPostal.objects.filter(codigo=self.codigo)
+        qs = CodigoPostal.active_objects.filter(codigo=self.codigo)
         if self.pk:
             qs = qs.exclude(pk=self.pk)
         if qs.exists():

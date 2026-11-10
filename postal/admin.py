@@ -33,6 +33,9 @@ class CatMunicipioAdmin(ModelAdmin):
     list_filter = ('estado_id',)
     readonly_fields = ('created_at', 'updated_at', 'deleted_at')
     
+    autocomplete_fields = ["estado_id"]
+    list_select_related = ["estado_id"]
+    
     list_filter_submit = True
     list_show_full_result_count = True
     compressed_fields = True
@@ -44,10 +47,13 @@ class CatMunicipioAdmin(ModelAdmin):
 
 @admin.register(CatCiudad)
 class CatCiudadAdmin(ModelAdmin):
-    list_display = ('nombre', 'estado_id', 'created_at', 'updated_at', 'deleted_at')
-    search_fields = ('nombre', 'estado_id__nombre')
+    list_display = ('clave', 'nombre', 'estado_id', 'created_at', 'updated_at', 'deleted_at')
+    search_fields = ('clave', 'nombre', 'estado_id__nombre')
     list_filter = ('estado_id',)
     readonly_fields = ('created_at', 'updated_at', 'deleted_at')
+    
+    autocomplete_fields = ["estado_id"]
+    list_select_related = ["estado_id"]
     
     list_filter_submit = True
     list_show_full_result_count = True
@@ -95,8 +101,12 @@ class CodigoPostalAdmin(ModelAdmin):
     list_filter = ('municipio_id__estado_id',)
     readonly_fields = ('created_at', 'updated_at', 'deleted_at')
     
+    autocomplete_fields = ["municipio_id", "ciudad_id"]
+    list_select_related = ["municipio_id", "ciudad_id"]
+    
     list_filter_submit = True
-    list_show_full_result_count = True
+    list_show_full_result_count = False
+    show_full_result_count = False 
     compressed_fields = True
     list_fullwidth = True
 
