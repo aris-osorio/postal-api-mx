@@ -41,7 +41,7 @@ class CatEstado(BaseModel):
 
 
 class CatMunicipio(BaseModel):
-    estado_id = models.ForeignKey(CatEstado, on_delete=models.PROTECT, db_column='estado_id')
+    estado_id = models.ForeignKey(CatEstado, on_delete=models.PROTECT, db_column='estado_id', verbose_name='Estado')
     clave = models.CharField(max_length=3, help_text="Clave de municipio por estado")
     nombre = models.CharField(max_length=150)
 
@@ -78,7 +78,7 @@ class CatMunicipio(BaseModel):
 
 
 class CatCiudad(BaseModel):
-    estado_id = models.ForeignKey(CatEstado, on_delete=models.PROTECT, db_column='estado_id')
+    estado_id = models.ForeignKey(CatEstado, on_delete=models.PROTECT, db_column='estado_id', verbose_name='Estado')
     clave = models.CharField(max_length=3, help_text="Clave de ciudad por estado", default="")
     nombre = models.CharField(max_length=150)
 
@@ -120,13 +120,14 @@ class CodigoPostal(BaseModel):
         validators=[MinLengthValidator(5, message="El código postal debe tener exactamente 5 dígitos.")],
         help_text="Código Postal a 5 dígitos (preserva ceros iniciales como '01000')"
     )
-    municipio_id = models.ForeignKey(CatMunicipio, on_delete=models.PROTECT, db_column='municipio_id')
+    municipio_id = models.ForeignKey(CatMunicipio, on_delete=models.PROTECT, db_column='municipio_id', verbose_name='Municipio')
     ciudad_id = models.ForeignKey(
         CatCiudad, 
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True, 
-        db_column='ciudad_id'
+        db_column='ciudad_id',
+        verbose_name='Ciudad'
     )
 
     class Meta:
@@ -217,19 +218,22 @@ class Asentamiento(BaseModel):
     codigo_postal_id = models.ForeignKey(
         CodigoPostal, 
         on_delete=models.PROTECT, 
-        db_column='codigo_postal_id'
+        db_column='codigo_postal_id',
+        verbose_name='Codigo Postal'
     )
     tipo_asentamiento_id = models.ForeignKey(
         CatTipoAsentamiento, 
         on_delete=models.PROTECT, 
-        db_column='tipo_asentamiento_id'
+        db_column='tipo_asentamiento_id',
+        verbose_name='Tipo de asentamiento'
     )
     zona_id = models.ForeignKey(
         CatZonaAsentamiento, 
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True, 
-        db_column='zona_id'
+        db_column='zona_id',
+        verbose_name='Zona asentamiento'
     )
     nombre = models.CharField(max_length=150, help_text="Nombre del asentamiento")
 
