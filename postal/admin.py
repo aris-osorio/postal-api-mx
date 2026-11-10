@@ -1,5 +1,6 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
+from core.admin import ActiveObjectsAutocompleteMixin
 from .models import (
     CatEstado,
     CatMunicipio,
@@ -12,7 +13,7 @@ from .models import (
 
 
 @admin.register(CatEstado)
-class CatEstadoAdmin(ModelAdmin):
+class CatEstadoAdmin(ActiveObjectsAutocompleteMixin, ModelAdmin):
     list_display = ('clave', 'nombre', 'created_at', 'updated_at', 'deleted_at')
     search_fields = ('clave', 'nombre')
     readonly_fields = ('created_at', 'updated_at', 'deleted_at')
@@ -23,11 +24,12 @@ class CatEstadoAdmin(ModelAdmin):
     list_fullwidth = True
 
     def get_queryset(self, request):
-        return CatEstado.all_objects.all()
+        manager = self.model.all_objects if request.user.is_superuser else self.model.active_objects
+        return manager.all()
 
 
 @admin.register(CatMunicipio)
-class CatMunicipioAdmin(ModelAdmin):
+class CatMunicipioAdmin(ActiveObjectsAutocompleteMixin, ModelAdmin):
     list_display = ('clave', 'nombre', 'estado_id', 'created_at', 'updated_at', 'deleted_at')
     search_fields = ('clave', 'nombre', 'estado_id__nombre')
     list_filter = ('estado_id',)
@@ -42,7 +44,8 @@ class CatMunicipioAdmin(ModelAdmin):
     list_fullwidth = True
 
     def get_queryset(self, request):
-        return CatMunicipio.all_objects.all()
+        manager = self.model.all_objects if request.user.is_superuser else self.model.active_objects
+        return manager.all()
 
 
 @admin.register(CatCiudad)
@@ -61,7 +64,8 @@ class CatCiudadAdmin(ModelAdmin):
     list_fullwidth = True
 
     def get_queryset(self, request):
-        return CatCiudad.all_objects.all()
+        manager = self.model.all_objects if request.user.is_superuser else self.model.active_objects
+        return manager.all()
 
 
 @admin.register(CatTipoAsentamiento)
@@ -76,7 +80,8 @@ class CatTipoAsentamientoAdmin(ModelAdmin):
     list_fullwidth = True
 
     def get_queryset(self, request):
-        return CatTipoAsentamiento.all_objects.all()
+        manager = self.model.all_objects if request.user.is_superuser else self.model.active_objects
+        return manager.all()
 
 
 @admin.register(CatZonaAsentamiento)
@@ -91,7 +96,8 @@ class CatZonaAsentamientoAdmin(ModelAdmin):
     list_fullwidth = True
 
     def get_queryset(self, request):
-        return CatZonaAsentamiento.all_objects.all()
+        manager = self.model.all_objects if request.user.is_superuser else self.model.active_objects
+        return manager.all()
 
 
 @admin.register(CodigoPostal)
@@ -111,7 +117,8 @@ class CodigoPostalAdmin(ModelAdmin):
     list_fullwidth = True
 
     def get_queryset(self, request):
-        return CodigoPostal.all_objects.all()
+        manager = self.model.all_objects if request.user.is_superuser else self.model.active_objects
+        return manager.all()
 
 
 @admin.register(Asentamiento)
@@ -127,4 +134,5 @@ class AsentamientoAdmin(ModelAdmin):
     list_fullwidth = True
 
     def get_queryset(self, request):
-        return Asentamiento.all_objects.all()
+        manager = self.model.all_objects if request.user.is_superuser else self.model.active_objects
+        return manager.all()
