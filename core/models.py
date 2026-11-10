@@ -2,7 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from .managers import ActiveManager
+from .managers import ActiveObjectsManager, AllObjectsManager
 
 class BaseModel(models.Model):
     """Abstract base model for auditing and soft deletion."""
@@ -20,8 +20,8 @@ class BaseModel(models.Model):
         verbose_name=_('Fecha de eliminación')
     )
 
-    active_objects = ActiveManager()
-    all_objects = models.Manager()
+    active_objects = ActiveObjectsManager()
+    all_objects = AllObjectsManager()
 
     class Meta:
         abstract = True
