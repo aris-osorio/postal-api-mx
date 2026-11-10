@@ -55,8 +55,8 @@ class CatCiudadAdmin(ModelAdmin):
     list_filter = ('estado_id',)
     readonly_fields = ('created_at', 'updated_at', 'deleted_at')
     
-    autocomplete_fields = ["estado_id"]
-    list_select_related = ["estado_id"]
+    autocomplete_fields = ['estado_id']
+    list_select_related = ['estado_id']
     
     list_filter_submit = True
     list_show_full_result_count = True
@@ -107,8 +107,8 @@ class CodigoPostalAdmin(ModelAdmin):
     list_filter = ('municipio_id__estado_id',)
     readonly_fields = ('created_at', 'updated_at', 'deleted_at')
     
-    autocomplete_fields = ["municipio_id", "ciudad_id"]
-    list_select_related = ["municipio_id", "ciudad_id"]
+    autocomplete_fields = ['municipio_id', 'ciudad_id']
+    list_select_related = ['municipio_id', 'ciudad_id']
     
     list_filter_submit = True
     list_show_full_result_count = False
@@ -127,6 +127,9 @@ class AsentamientoAdmin(ModelAdmin):
     search_fields = ('nombre', 'codigo_postal_id__codigo')
     list_filter = ('tipo_asentamiento_id', 'zona_id')
     readonly_fields = ('created_at', 'updated_at', 'deleted_at')
+    
+    autocomplete_fields = ['codigo_postal_id', 'tipo_asentamiento_id', 'zona_id']
+    list_select_related = ['codigo_postal_id', 'tipo_asentamiento_id', 'zona_id']
     
     list_filter_submit = True
     list_show_full_result_count = True
