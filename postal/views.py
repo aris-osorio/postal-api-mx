@@ -215,7 +215,7 @@ class CodigoPostalDetailsView(RetrieveAPIView):
         codigo = self.kwargs.get('codigo')
 
         return get_object_or_404(
-            CodigoPostal.objects.filter(deleted_at__isnull=True),
+            CodigoPostal.active_objects.filter(deleted_at__isnull=True),
             codigo=codigo
         )
 

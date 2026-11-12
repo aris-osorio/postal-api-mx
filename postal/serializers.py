@@ -91,7 +91,7 @@ class CodigoPostalDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_asentamientos(self, obj):
-        asentamientos_activos = Asentamiento.objects.filter(
+        asentamientos_activos = Asentamiento.active_objects.filter(
             codigo_postal_id=obj, 
             deleted_at__isnull=True
         ).values_list('nombre', flat=True)
